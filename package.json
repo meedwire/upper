@@ -156,5 +156,9 @@
         }
       ]
     ]
+  },
+  "dependencies": {
+    "react-native-quick-sqlite": "^8.0.6",
+    "reflect-metadata": "^0.1.13"
   }
 }
