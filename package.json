@@ -1,12 +1,16 @@
 {
   "name": "react-native-upper",
-  "version": "0.1.0",
+  "version": "0.1.7",
   "description": "Simple",
   "main": "lib/commonjs/index",
   "module": "lib/module/index",
   "types": "lib/typescript/src/index.d.ts",
   "react-native": "src/index",
   "source": "src/index",
+  "exports": {
+    ".": "./src/index",
+    "./decorators": "./decorators/index"
+  },
   "files": [
     "src",
     "lib",

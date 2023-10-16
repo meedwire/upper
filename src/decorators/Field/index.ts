@@ -22,18 +22,29 @@ export function Field(params: FieldType): PropertyDecorator {
       val = params.defaultValue;
     }
 
-    return {
+    Object.defineProperty(target, propertyKey.toString(), {
       enumerable: true,
       configurable: true,
-      initializer: () => {
-        return val;
-      },
       get() {
         return val;
       },
       set(newValue: any) {
         val = newValue;
       },
-    };
+    });
   };
 }
+
+// {
+//   enumerable: true,
+//   configurable: true,
+//   initializer: () => {
+//     return val;
+//   },
+//   get() {
+//     return val;
+//   },
+//   set(newValue: any) {
+//     val = newValue;
+//   },
+// };

@@ -10,16 +10,25 @@ export const PrimaryColumn: PrimaryDecorator = (params) => {
 
     Reflect.defineMetadata('field:type', fieldInfo, target, propertyKey);
 
-    return {
+    Object.defineProperty(target, propertyKey.toString(), {
       enumerable: true,
       configurable: true,
-      initializer: () => {
-        return generateUUID();
-      },
       set: function () {},
       get: function () {
         return generateUUID();
       },
-    };
+    });
   };
 };
+
+// return {
+//   enumerable: true,
+//   configurable: true,
+//   initializer: () => {
+//     return generateUUID();
+//   },
+//   set: function () {},
+//   get: function () {
+//     return generateUUID();
+//   },
+// };

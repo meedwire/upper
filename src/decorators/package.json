@@ -1,0 +1,5 @@
+{
+    "name": "react-native-upper/decorators",
+    "main": "index.ts",
+    "react-native": "src/decorators/index"
+}

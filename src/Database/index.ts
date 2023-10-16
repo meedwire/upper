@@ -83,12 +83,14 @@ export class Database<T extends Entities> {
 
     const tableName = entity.name;
 
-    return this.sql.GetOne({
+    const result = this.sql.GetOne({
       query: {
         name: tableName,
-        fields: selectOptions.select,
-        where: selectOptions.where,
+        fields: selectOptions?.select,
+        where: selectOptions?.where,
       },
     });
+
+    return result ? result : new entity();
   }
 }
