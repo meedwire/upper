@@ -1,28 +1,21 @@
-import { type DispatchWithoutAction } from 'react';
 import { InstantReaction } from '../InstantReaction';
+import type { UpperRegister } from './types';
 
-let instantReaction = InstantReaction.getInstance();
-
-export function upper(initialValue: any) {
+export const upper: UpperRegister = (initialValue, onUpdate) => {
+  const instantReaction = InstantReaction.getInstance();
   const observed = initialValue;
-  const _reactions = new Set<DispatchWithoutAction>();
-
-  if (initialValue) {
-    Object.assign(observed, initialValue);
-  }
 
   const proxy = new Proxy(observed, {
     get(obj, prop) {
-      if (instantReaction.reaction) {
-        _reactions.add(instantReaction.reaction);
-      }
-
       return obj[prop];
     },
     set(obj, prop, value) {
       if (value !== observed[prop]) {
         obj[prop] = value;
-        _reactions.forEach((reaction) => reaction());
+
+        instantReaction._reactions.forEach((reaction) => reaction());
+
+        onUpdate(obj, prop, value);
 
         return true;
       }
@@ -32,4 +25,4 @@ export function upper(initialValue: any) {
   });
 
   return proxy;
-}
+};

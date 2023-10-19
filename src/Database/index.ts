@@ -62,8 +62,8 @@ export class Database<T extends Entities> {
     return this.sql.Get({
       query: {
         name: tableName,
-        fields: selectOptions.select,
-        where: selectOptions.where,
+        fields: selectOptions?.select,
+        where: selectOptions?.where,
       },
     });
   }
@@ -92,5 +92,27 @@ export class Database<T extends Entities> {
     });
 
     return result ? result : new entity();
+  }
+
+  insertOrUpdate(
+    entityName: string,
+    target: any,
+    prop: string | symbol,
+    value: any
+  ) {
+    if (!this.entities) {
+      throw new Error('Error in select, entities is not defined');
+    }
+
+    const entity = this.entities[entityName];
+
+    if (!entity) {
+      throw new Error('Entity not defined');
+    }
+
+    const tableName = entity.name;
+    const id = target.id;
+
+    this.sql.InsertOrUpdate({ table: tableName, id, prop, value });
   }
 }

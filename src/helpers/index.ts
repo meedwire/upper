@@ -18,3 +18,19 @@ export function generateUUID() {
     s4()
   );
 }
+
+export function parseValue(value: any) {
+  if (value instanceof Date) {
+    return `'${value.toISOString()}'`;
+  }
+
+  if (typeof value === 'boolean') {
+    return Number(value);
+  }
+
+  if (typeof value === 'string') {
+    return `'${value}'`;
+  }
+
+  return value;
+}

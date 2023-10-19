@@ -1,0 +1,22 @@
+diff --git a/node_modules/reflect-metadata/index.d.ts b/node_modules/reflect-metadata/index.d.ts
+index 47fc8c5..f85eb21 100644
+--- a/node_modules/reflect-metadata/index.d.ts
++++ b/node_modules/reflect-metadata/index.d.ts
+@@ -168,7 +168,7 @@ declare global {
+           *     }
+           *
+           */
+-        function defineMetadata(metadataKey: any, metadataValue: any, target: Object, propertyKey: string | symbol): void;
++        function defineMetadata<T = any>(metadataKey: any, metadataValue: T, target: Object, propertyKey: string | symbol): void;
+         /**
+           * Gets a value indicating whether the target object or its prototype chain has the provided metadata key defined.
+           * @param metadataKey A key used to store and retrieve metadata.
+@@ -306,7 +306,7 @@ declare global {
+           *     result = Reflect.getMetadata("custom:annotation", Example.prototype, "method");
+           *
+           */
+-        function getMetadata(metadataKey: any, target: Object, propertyKey: string | symbol): any;
++        function getMetadata<T = any>(metadataKey: any, target: Object, propertyKey: string | symbol): T;
+         /**
+           * Gets the metadata value for the provided metadata key on the target object.
+           * @param metadataKey A key used to store and retrieve metadata.

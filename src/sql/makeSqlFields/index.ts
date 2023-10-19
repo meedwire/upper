@@ -1,3 +1,5 @@
+import type { FieldInfo } from '../../commonTypes';
+
 const typesSqlite = new Map([
   ['string', 'text'],
   ['number', 'int'],
@@ -7,10 +9,19 @@ const typesSqlite = new Map([
   ['relation', 'relation'],
 ]);
 
-interface FieldInfo {
-  type: string;
-  primaryKey: boolean;
-}
+const fieldInfo = (target: any, field: string) => {
+  return Reflect.getMetadata<FieldInfo>('field:type', target, field);
+};
+
+const order = (a: FieldInfo, b: FieldInfo) => {
+  if (a.type === 'relation' && b.type !== 'relation') {
+    return 1;
+  }
+  if (a.type !== 'relation' && b.type === 'relation') {
+    return -1;
+  }
+  return 0;
+};
 
 export function makeSqlFields(entity: new (...args: any[]) => any) {
   const fields = new entity();
@@ -20,9 +31,11 @@ export function makeSqlFields(entity: new (...args: any[]) => any) {
   const makeSimpleRow = (field: string, info: FieldInfo) => {
     const nativeType = typesSqlite.get(info.type);
 
-    const primaryKey = info.primaryKey ? ' PRIMARY KEY' : '';
+    const extra = info.primaryKey ? ' PRIMARY KEY' : '';
 
-    let row = `${field} ${nativeType}${primaryKey}`;
+    const nullable = info.nullable ? '' : ' NOT NULL';
+
+    let row = `${field} ${nativeType}${extra}${nullable}`;
 
     return row;
   };
@@ -44,30 +57,39 @@ export function makeSqlFields(entity: new (...args: any[]) => any) {
     const parentInfo = Reflect.getMetadata(
       'field:type',
       instanceEntityToRelation,
-      fieldRelation,
+      fieldRelation
     );
 
     const fieldToRelation = `${field}_${fieldRelation}`;
 
     const row = `${fieldToRelation} ${typesSqlite.get(parentInfo.type)},
-        FOREING KEY ${fieldToRelation} REFERENCES ${tableRelationToName}(${fieldRelation})`;
+      FOREIGN KEY(${fieldToRelation}) REFERENCES ${tableRelationToName}(${fieldRelation})`;
 
     return row;
   };
 
-  Object.keys(fields).forEach(field => {
-    const fieldInfo = Reflect.getMetadata('field:type', fields, field);
+  const fieldsByConfig = Object.keys(fields)
+    .map((field) => {
+      const metadata = fieldInfo(fields, field);
 
-    const isRelation = fieldInfo.type === 'relation';
+      return {
+        field,
+        ...metadata,
+      };
+    })
+    .sort(order);
+
+  fieldsByConfig.forEach((config) => {
+    const isRelation = config.type === 'relation';
 
     if (isRelation) {
-      const sqlRow = relationType(field);
+      const sqlRow = relationType(config.field);
 
       if (sqlRow) {
         mapFields.push(sqlRow);
       }
     } else {
-      const sqlRow = makeSimpleRow(field, fieldInfo);
+      const sqlRow = makeSimpleRow(config.field, config);
 
       if (sqlRow) {
         mapFields.push(sqlRow);

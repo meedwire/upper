@@ -3,7 +3,7 @@ import type { DispatchWithoutAction } from 'react';
 export class InstantReaction {
   private static instance: InstantReaction | null = null;
 
-  reaction: DispatchWithoutAction | null = null;
+  _reactions: Map<string, DispatchWithoutAction> = new Map();
 
   private constructor() {}
 
@@ -14,11 +14,15 @@ export class InstantReaction {
     return InstantReaction.instance;
   }
 
-  register(reaction: DispatchWithoutAction) {
-    this.reaction = reaction;
+  has(id: string) {
+    return this._reactions.has(id);
   }
 
-  remove() {
-    this.reaction = null;
+  register(id: string, reaction: DispatchWithoutAction) {
+    this._reactions.set(id, reaction);
+  }
+
+  remove(id: string) {
+    this._reactions.delete(id);
   }
 }

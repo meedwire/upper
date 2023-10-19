@@ -1,35 +1,6 @@
 import type { QuickSQLiteConnection } from 'react-native-quick-sqlite';
 import type { Options } from './types';
 
-function parseValue(value: any) {
-  if (value instanceof Date) {
-    return value.toISOString();
-  }
-
-  if (value instanceof Boolean) {
-    return Number(value);
-  }
-
-  if (typeof value === 'string') {
-    return `'${value}'`;
-  }
-
-  return value;
-}
-
-function filterKey(data: any) {
-  return (k: string) => {
-    if (data[k] !== undefined && data[k]?.length !== 0) {
-      return true;
-    }
-    return false;
-  };
-}
-
-function filter(v: any) {
-  return v !== undefined && v?.length !== 0;
-}
-
 export class QueryArray<T> extends Array<T> {
   private tableName: string | null;
   private db: QuickSQLiteConnection | null;
@@ -44,23 +15,7 @@ export class QueryArray<T> extends Array<T> {
   }
 
   insert(data: T) {
-    const fields = Object.keys(data as object)
-      .filter(filterKey(data))
-      .join(',');
-    const values = Object.values(data as object)
-      .filter(filter)
-      .map((value) => parseValue(value))
-      .join(',');
-
-    const sql = `INSERT INTO ${this.tableName} (${fields}) values (${values})`;
-
-    if (!this.db) {
-      throw new Error('DB is not defined');
-    }
-
     this.push(data);
-
-    this.db.execute(sql);
     return true;
   }
 

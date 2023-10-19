@@ -1,22 +1,27 @@
 import React, { createElement } from 'react';
 import type { ObserverFunction, ObserverProps } from './types';
 import { InstantReaction } from '../../register/InstantReaction';
+import { generateUUID } from '../../helpers';
 
 const instantReaction = InstantReaction.getInstance();
 
-export class Observer extends React.Component<ObserverProps> {
+export class Observer extends React.PureComponent<
+  ObserverProps,
+  { id: string }
+> {
   constructor(props: any) {
     super(props);
-    instantReaction.register(this.forceUpdate.bind(this));
-  }
 
-  componentDidUpdate() {
-    instantReaction.register(this.forceUpdate.bind(this));
+    this.state = {
+      id: generateUUID(),
+    };
+
+    instantReaction.register(this.state.id, this.forceUpdate.bind(this));
   }
 
   componentWillUnmount() {
-    if (instantReaction.reaction) {
-      instantReaction.remove();
+    if (instantReaction.has(this.state.id)) {
+      instantReaction.remove(this.state.id);
     }
   }
 
@@ -24,7 +29,6 @@ export class Observer extends React.Component<ObserverProps> {
     const { children } = this.props;
 
     const result = children();
-    instantReaction.remove();
 
     return result;
   }

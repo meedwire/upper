@@ -6,6 +6,7 @@ export const PrimaryColumn: PrimaryDecorator = (params) => {
     const fieldInfo = {
       type: params.type,
       primaryKey: true,
+      nullable: false,
     };
 
     Reflect.defineMetadata('field:type', fieldInfo, target, propertyKey);
@@ -18,6 +19,15 @@ export const PrimaryColumn: PrimaryDecorator = (params) => {
         return generateUUID();
       },
     });
+
+    const descripptor = Object.getOwnPropertyDescriptor(target, propertyKey);
+
+    return {
+      ...descripptor,
+      initializer: () => {
+        return generateUUID();
+      },
+    };
   };
 };
 

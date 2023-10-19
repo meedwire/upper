@@ -19,9 +19,16 @@ export class Upper<T extends Entities> extends Database<T> {
     options?: QueryOptions<T[Entity], Fields>
   ): QueryArray<QueryResult<T[Entity], Fields>> {
     const rows = this.select(entityName as string, options);
-    const upperRows = rows.map((row) => upper(row));
 
-    return upper(upperRows) as any;
+    const upperRows = rows.map((row) =>
+      upper(row, (...args) =>
+        this.insertOrUpdate(entityName as string, ...args)
+      )
+    );
+
+    return upper(upperRows, (...args) =>
+      this.insertOrUpdate(entityName as string, ...args)
+    );
   }
 
   QueryOne<Entity extends keyof T, Fields extends FieldsSelect<T[Entity]>>(
@@ -30,6 +37,8 @@ export class Upper<T extends Entities> extends Database<T> {
   ): InstanceType<T[Entity]> {
     const row = this.selectOne(entityName as string, options);
 
-    return upper(row);
+    return upper(row, (...args) =>
+      this.insertOrUpdate(entityName as string, ...args)
+    );
   }
 }

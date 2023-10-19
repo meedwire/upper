@@ -1,13 +1,13 @@
-import type { FieldType } from './types';
+import 'reflect-metadata';
 import type { FieldInfo } from '../../commonTypes';
 
-export function Field(params: FieldType): PropertyDecorator {
+export function UpdatedColumn(): PropertyDecorator {
   return (target: Object, propertyKey: string | symbol) => {
     const fieldInfo = {
-      type: params.type,
+      type: 'date',
       primaryKey: false,
-      nullable: params.nullable ?? false,
-    };
+      nullable: false,
+    } as const;
 
     Reflect.defineMetadata<FieldInfo>(
       'field:type',
@@ -16,17 +16,7 @@ export function Field(params: FieldType): PropertyDecorator {
       propertyKey
     );
 
-    let val: any;
-
-    if (params.defaultValue !== undefined) {
-      const defaultType = params.defaultValue;
-
-      if (defaultType === 'now') {
-        val = new Date();
-      } else {
-        val = params.defaultValue;
-      }
-    }
+    let val: any = new Date();
 
     Object.defineProperty(target, propertyKey.toString(), {
       enumerable: true,
@@ -38,5 +28,14 @@ export function Field(params: FieldType): PropertyDecorator {
         val = newValue;
       },
     });
+
+    const descripptor = Object.getOwnPropertyDescriptor(target, propertyKey);
+
+    return {
+      ...descripptor,
+      initializer: () => {
+        return new Date();
+      },
+    };
   };
 }

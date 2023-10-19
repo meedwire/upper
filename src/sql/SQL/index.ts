@@ -2,10 +2,13 @@ import type { QuickSQLiteConnection } from 'react-native-quick-sqlite';
 import type {
   GetOneParams,
   HasParams,
+  InsertOrUpdateParmas,
   SQLSelectParams,
   SQLWhere,
+  SqlInsertOrUpdate,
 } from './types';
 import { QueryArray } from '../../QueryArray';
+import { parseValue } from '../../helpers';
 
 export class SQL {
   private db: QuickSQLiteConnection;
@@ -57,6 +60,22 @@ export class SQL {
     return rows?.item(0);
   }
 
+  InsertOrUpdate(params: InsertOrUpdateParmas) {
+    const tableName = params.table;
+    const field = params.prop;
+    const id = params.id;
+    const value = parseValue(params.value);
+
+    const query = this.sqlInsertOrUpdate({
+      name: tableName,
+      prop: field,
+      id,
+      value,
+    });
+
+    return this.db.execute(query);
+  }
+
   HasData(params: HasParams) {
     const whereColumns = Object.keys(params.criteria!.where!);
     const wherePlaceholders = whereColumns
@@ -95,21 +114,18 @@ export class SQL {
     return `WHERE ${whereParts.join(' AND ')}`;
   }
 
-  // private sqlInsertOrUpdate(query) {
-  //   const tableName = query.name;
-  //   const field = query.prop;
-  //   const value = query.value;
+  private sqlInsertOrUpdate(query: SqlInsertOrUpdate) {
+    const tableName = query.name;
+    const field = query.prop.toString();
+    const value = query.value;
+    const id = query.id;
 
-  //   const sql = `
-  //     BEGIN TRANSACTION;
+    const sql = `
+      INSERT INTO ${tableName} (id, ${field})
+      VALUES ('${id}', ${value})
+      ON CONFLICT(id) DO UPDATE SET ${field} = ${value};
+    `;
 
-  //     UPDATE ${tableName} SET ${field} = ${value} WHERE demo.ID = 102;
-
-  //     INSERT INTO demo (ID, Name, Hint)
-  //     VALUES (102, 'Leonardo', 'A real human')
-  //     ON CONFLICT(ID) DO NOTHING;
-
-  //     COMMIT TRANSACTION;
-  //   `;
-  // }
+    return sql;
+  }
 }
